@@ -21,8 +21,8 @@ with open("README.md", "r") as descr_file:
 setup(
     name='robustconacq',
     version=get_version("pycona/__init__.py"),
-    author='Gert-Jan Gillis',
-    author_email="gertjangillis8@gmail.com",
+    author='Dimos Tsouros',
+    author_email="dimos.tsouros@kuleuven.be",
     license='Apache 2.0',
     description='A cpmpy-based library for robust constraint acquisition.',
     long_description=long_description,
