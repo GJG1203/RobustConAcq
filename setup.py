@@ -19,7 +19,7 @@ with open("README.md", "r") as descr_file:
     long_description = descr_file.read()
 
 setup(
-    name='robustconacq',
+    name='pycona',
     version=get_version("pycona/__init__.py"),
     author='Dimos Tsouros',
     author_email="dimos.tsouros@kuleuven.be",
