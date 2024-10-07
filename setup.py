@@ -19,15 +19,15 @@ with open("README.md", "r") as descr_file:
     long_description = descr_file.read()
 
 setup(
-    name='pycona',
+    name='robustconacq',
     version=get_version("pycona/__init__.py"),
-    author='Dimos Tsouros',
-    author_email="dimos.tsouros@kuleuven.be",
+    author='Gert-Jan Gillis',
+    author_email="gertjangillis8@gmail.com",
     license='Apache 2.0',
-    description='A cpmpy-based library for constraint acquisition.',
+    description='A cpmpy-based library for robust constraint acquisition.',
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/CPMpy/PyConA",
+    url="https://github.com/GJG1203/RobustConAcq",
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
