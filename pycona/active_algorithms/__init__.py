@@ -13,3 +13,4 @@ from .mquacq import MQuAcq
 from .growacq import GrowAcq
 from .pquacq import PQuAcq
 from .gquacq import GQuAcq
+from .robustacq import RobustAcq
