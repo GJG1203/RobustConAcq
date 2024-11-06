@@ -8,3 +8,4 @@ Initializes the oracle module, including different types of oracles:
 from .oracle import Oracle
 from .constraint_oracle import ConstraintOracle
 from .user_oracle import UserOracle
+from .misclassifying_user_oracle import MisclassifyingUserOracle

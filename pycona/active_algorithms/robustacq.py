@@ -2,7 +2,7 @@ import time
 
 from .algorithm_core import AlgorithmCAInteractive
 from ..problem_instance import ProblemInstance
-from ..answering_queries import Oracle, UserOracle
+from ..answering_queries import Oracle, UserOracle, MisclassifyingUserOracle
 from ..ca_environment.active_ca import ActiveCAEnv
 from ..utils import get_kappa
 from .. import Metrics
@@ -10,64 +10,70 @@ from .. import Metrics
 
 class RobustAcq(AlgorithmCAInteractive):
     """
-    RobustAcq is an implementation of the ICA_Algorithm that uses an updated version of the QuAcq
-    algorithm to learn constraints in a robust way.
+    RobustAcq is a modified version of the QuAcq algorithm with additional robustness features.
     """
 
-    def __init__(self, ca_env: ActiveCAEnv = None):
+    def __init__(self, ca_env: ActiveCAEnv = None, stop_thresh=10, retrain_thresh=20):
         """
-        Initialize the QuAcq algorithm with an optional constraint acquisition system.
-
+        Initialize the RobustAcq algorithm with optional thresholds.
         :param ca_env: An instance of CASystem, default is None.
+        :param threshold1: Stopping threshold for convergence.
+        :param threshold2: Size threshold for retraining classifier.
         """
         super().__init__(ca_env)
+        self.stop_thresh = stop_thresh
+        self.retrain_thresh = retrain_thresh
+        self.stopping_threshold = 0
+        self.Br = set()
 
-    def learn(self, instance: ProblemInstance, oracle: Oracle = UserOracle(), verbose=0, metrics: Metrics = None):
-        """
-        Learn constraints using the QuAcq algorithm by generating queries and analyzing the results.
+    def retrain_classifier(self):
+        """Retrain the classifier if |L| > retrain_thresh."""
+        # Implement retraining logic here.
+        pass
 
-        :param instance: the problem instance to acquire the constraints for
-        :param oracle: An instance of Oracle, default is to use the user as the oracle.
-        :param verbose: Verbosity level, default is 0.
-        :param metrics: statistics logger during learning
-        :return: the learned instance
-        """
+    def increase_stopping_threshold(self):
+        """Increase the stopping threshold"""
+        self.stopping_threshold += 1
+
+    def learn(self, instance: ProblemInstance, oracle: Oracle = MisclassifyingUserOracle(), verbose=0, metrics: Metrics = None):
         self.env.init_state(instance, oracle, verbose, metrics)
 
         if len(self.env.instance.bias) == 0:
             self.env.instance.construct_bias()
+            
+        # Initialize the learned network L and sets B, Br
+        L = self.env.instance.cl
+        B = self.env.instance.bias
+        self.Br = set()
 
         while True:
-            if self.env.verbose > 2:
-                print("Size of CL: ", len(self.env.instance.cl))
-                print("Size of B: ", len(self.env.instance.bias))
-                print("Number of Queries: ", self.env.metrics.membership_queries_count)
+            if self.stopping_threshold > self.stop_thresh:
+                return L  # Convergence condition
 
-            gen_start = time.time()
-            Y = self.env.run_query_generation()
-            gen_end = time.time()
+            if len(L) > self.retrain_thresh:
+                self.retrain_classifier()  # Retrain classifier condition
 
-            if len(Y) == 0:
-                # if no query can be generated it means we have (prematurely) converged to the target network -----
-                self.env.metrics.finalize_statistics()
-                if self.env.verbose >= 1:
-                    print(f"\nLearned {self.env.metrics.cl} constraints in "
-                          f"{self.env.metrics.membership_queries_count} queries.")
-                return self.env.instance
+            q1 = self.env.run_query_generation(L, B)
+            if q1 is None:
+                q2 = self.env.run_query_generation(L, self.Br)
+                if q2 is None:
+                    continue
 
-            self.env.metrics.increase_generation_time(gen_end - gen_start)
-            self.env.metrics.increase_generated_queries()
-            self.env.metrics.increase_top_queries()
-            kappaB = get_kappa(self.env.instance.bias, Y)
+                if self.env.ask_membership_query(q2):
+                    self.increase_stopping_threshold()
+                else:
+                    scope = self.env.run_find_scope(q2)
+                    c = self.env.run_findc(scope)
+                    if c:
+                        L.add(c)
 
-            answer = self.env.ask_membership_query(Y)
-            if answer:
-                # it is a solution, so all candidates violated must go
-                # B <- B \setminus K_B(e)
-                self.env.remove_from_bias(kappaB)
-
-            else:  # user says UNSAT
-
-                scope = self.env.run_find_scope(Y)
-                c = self.env.run_findc(scope)
-                self.env.add_to_cl(c)
+            else:
+                if self.env.ask_membership_query(q1):
+                    # remove from B and add to Br
+                    B.difference_update(self.get_kappa(B, q1))
+                    self.Br.update(self.get_kappa(B, q1))
+                else:
+                    scope = self.env.run_find_scope(q1)
+                    c = self.env.run_findc(scope)
+                    if c:
+                        L.add(c)
