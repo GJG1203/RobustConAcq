@@ -142,3 +142,80 @@ class PQGen(QGenBase):
         else:
             restore_scope_values(lY, values)
             return lY
+
+
+    def robust_generate(self, constraint_set):
+        """
+        Generate a query using PQGen.
+
+        :return: A set of variables that form the query.
+        """
+        # Start time (for the cutoff t)
+        t0 = time.time()
+
+        # Project down to only vars in scope of B
+        Y = frozenset(get_variables(constraint_set))
+        lY = list(Y)
+
+        if len(Y) == len(self.env.instance.X):
+            B = constraint_set
+            Cl = self.env.instance.cl
+        else:
+            B = get_con_subset(constraint_set, Y)
+            Cl = get_con_subset(self.env.instance.cl, Y)
+
+        # If no constraints left in B, just return
+        if len(B) == 0:
+            return set()
+
+        # sample from B using the probabilities -------------------
+        # If no constraints learned yet, start by just generating an example in all the variables in Y
+        if len(Cl) == 0:
+            Cl = [cp.sum(Y) >= 1]
+
+        if not self.partial and len(B) > self.blimit:
+
+            m = cp.Model(Cl)
+            flag = m.solve()  # no time limit to ensure convergence
+
+            if flag and not all([c.value() for c in B]):
+                return lY
+            else:
+                self.partial = True
+
+        m = cp.Model(Cl)
+        s = cp.SolverLookup.get("ortools", m)
+
+        # We want at least one constraint to be violated to assure that each answer of the user
+        # will lead to new information
+        s += ~cp.all(B)
+
+        # Solve first without objective (to find at least one solution)
+        flag = s.solve()
+
+        t1 = time.time() - t0
+        if not flag or (t1 > self.time_limit):
+            # UNSAT or already above time_limit, stop here --- cannot optimize
+            return lY if flag else set()
+
+        # Next solve will change the values of the variables in lY
+        # so we need to return them to the original ones to continue if we don't find a solution next
+        values = [x.value() for x in lY]
+
+        # So a solution was found, try to find a better one now
+        s.solution_hint(lY, values)
+        try:
+            objective = self.obj(B=B, ca_system=self.env)
+        except:
+            raise NotImplementedError(f"Objective given not implemented in PQGen: {self.obj} - Please report an issue")
+
+        # Run with the objective
+        s.maximize(objective)
+
+        flag2 = s.solve(time_limit=(self.time_limit - t1))
+
+        if flag2:
+            return lY
+        else:
+            restore_scope_values(lY, values)
+            return lY

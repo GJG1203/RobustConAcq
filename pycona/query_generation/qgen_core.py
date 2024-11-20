@@ -23,6 +23,13 @@ class QGenBase(ABC):
         Method that all QGen implementations must implement to generate a query.
         """
         raise NotImplementedError
+    
+    @abstractmethod
+    def robust_generate(self, constraint_set):
+        """
+        Method that all QGen implementations must implement to generate a query.
+        """
+        raise NotImplementedError
 
     @property
     def env(self):

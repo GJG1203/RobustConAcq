@@ -75,9 +75,9 @@ class RobustAcq(AlgorithmCAInteractive):
             if len(self.env.instance.cl) > self.retrain_thresh:
                 self.retrain_classifier()  # Retrain classifier condition
 
-            q1 = self.env.run_query_generation(self.env.instance.cl, self.env.instance.bias)
+            q1 = self.env.run_robust_query_generation(self.env.instance.bias)
             if q1 is None:
-                q2 = self.env.run_query_generation(self.env.instance.cl, self.Br)
+                q2 = self.env.run_robust_query_generation(self.Br)
                 if q2 is None:
                     continue
 

@@ -61,6 +61,13 @@ class ProbaActiveCAEnv(ActiveCAEnv):
             self._train_classifier()
         self._predict_bias_proba()
         return super().run_query_generation()
+    
+    def run_robust_query_generation(self, constraint_set):
+        """ Run the query generation process. """
+        if self.training_frequency > 0 and len(self.instance.cl) > 0:
+            self._train_classifier()
+        self._predict_bias_proba()
+        return super().run_robust_query_generation(constraint_set)
 
     def run_find_scope(self, Y):
         """ Run the find scope process. """

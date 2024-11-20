@@ -51,3 +51,34 @@ class QGen(QGenBase):
                 return set()
 
         return self.env.instance.X
+
+    @abstractmethod
+    def robust_generate(self, constraint_set):
+        """
+        A basic version of query generation for small problems. May lead
+        to premature convergence, so generally not used.
+
+        :return: A set of variables that form the query.
+        """
+        if len(constraint_set) == 0:
+            return False
+
+        # B are taken into account as soft constraints that we do not want to satisfy (i.e., that we want to violate)
+        m = cp.Model(self.env.instance.cl)  # could use to-be-implemented m.copy() here...
+
+        # Get the amount of satisfied constraints from B
+        objective = sum([c for c in constraint_set])
+
+        # We want at least one constraint to be violated to assure that each answer of the
+        # user will reduce the set of candidates
+        m += objective < len(self.env.instance.bias)
+
+        s = cp.SolverLookup.get("ortools", m)
+        flag = s.solve(time_limit=self.time_limit)
+
+        if not flag:
+            if s.cpm_status.exitstatus == ExitStatus.UNKNOWN:
+                self.env.converged = 0
+                return set()
+
+        return self.env.instance.X
