@@ -53,11 +53,6 @@ class ActiveCAEnv(CAEnv):
         """ Run the query generation process. """
         Y = self.qgen.generate()
         return Y
-    
-    def run_robust_query_generation(self, constraint_set):
-        """ Run the query generation process. """
-        Y = self.qgen.robust_generate(constraint_set)
-        return Y
 
     def run_find_scope(self, Y):
         """ Run the find scope process. """
