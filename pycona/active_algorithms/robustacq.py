@@ -87,7 +87,7 @@ class RobustAcq(AlgorithmCAInteractive):
                     scope = self.env.run_find_scope(q2)
                     c = self.env.run_findc(scope)
                     if c:
-                        self.env.instance.cl.add(c)
+                        self.env.add_to_cl(c)
 
             else:
                 if self.env.ask_membership_query(q1):
@@ -98,4 +98,4 @@ class RobustAcq(AlgorithmCAInteractive):
                     scope = self.env.run_find_scope(q1)
                     c = self.env.run_findc(scope)
                     if c:
-                        self.env.instance.cl.add(c)
+                        self.env.add_to_cl(c)
