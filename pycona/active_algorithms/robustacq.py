@@ -21,7 +21,7 @@ class RobustAcq(AlgorithmCAInteractive):
         :param threshold1: Stopping threshold for convergence.
         :param threshold2: Size threshold for retraining classifier.
         """
-        super().__init__(ca_env)
+        super().__init__(ca_env if ca_env is not None else ProbaActiveCAEnv())
         self.stop_thresh = stop_thresh
         self.retrain_thresh = retrain_thresh
         self.stopping_threshold = 0
