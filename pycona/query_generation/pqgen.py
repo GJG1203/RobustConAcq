@@ -150,6 +150,7 @@ class PQGen(QGenBase):
 
         :return: A set of variables that form the query.
         """
+
         # Start time (for the cutoff t)
         t0 = time.time()
 
@@ -188,6 +189,7 @@ class PQGen(QGenBase):
 
         # We want at least one constraint to be violated to assure that each answer of the user
         # will lead to new information
+        # print("Constraint set before cp.all():", constraint_set)
         s += ~cp.all(B)
 
         # Solve first without objective (to find at least one solution)

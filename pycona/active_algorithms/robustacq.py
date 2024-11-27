@@ -51,10 +51,15 @@ class RobustAcq(AlgorithmCAInteractive):
                 constraints_to_move.add(constraint)
         
         # Move the marked constraints from Br back to B
-        self.Br.difference_update(constraints_to_move)
-        self.env.instance.bias.update(constraints_to_move)  # Add back to B
+        self.remove_constraints_Br(constraints_to_move)
+        self.env.instance.bias.extend(constraints_to_move)  # Add back to B
         
-
+    def remove_constraints_Br(self, cons):
+        return [item for item in self.Br if item not in cons]
+    
+    def remove_constraints_bias(self, cons):
+        return [item for item in self.env.instance.bias if item not in cons]
+        
     def increase_stopping_threshold(self):
         """Increase the stopping threshold"""
         self.stopping_threshold += 1
@@ -64,9 +69,11 @@ class RobustAcq(AlgorithmCAInteractive):
 
         if len(self.env.instance.bias) == 0:
             self.env.instance.construct_bias()
+            for c in self.env.instance.bias:
+                print(c)
             
         # Initialize Br
-        self.Br = set()
+        self.Br = []
 
         while True:
             if self.stopping_threshold > self.stop_thresh:
@@ -92,8 +99,9 @@ class RobustAcq(AlgorithmCAInteractive):
             else:
                 if self.env.ask_membership_query(q1):
                     # remove from B and add to Br
-                    self.env.instance.bias.difference_update(self.get_kappa(self.env.instance.bias, q1))
-                    self.Br.update(self.get_kappa(self.env.instance.bias, q1))
+                    kappa = get_kappa(self.env.instance.bias, q1)
+                    self.remove_constraints_bias(kappa)
+                    self.Br.extend(kappa)
                 else:
                     scope = self.env.run_find_scope(q1)
                     c = self.env.run_findc(scope)
