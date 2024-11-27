@@ -100,7 +100,7 @@ class RobustAcq(AlgorithmCAInteractive):
                 if self.env.ask_membership_query(q1):
                     # remove from B and add to Br
                     kappa = get_kappa(self.env.instance.bias, q1)
-                    self.remove_constraints_bias(kappa)
+                    self.env.remove_from_bias(kappa)
                     self.Br.extend(kappa)
                 else:
                     scope = self.env.run_find_scope(q1)
