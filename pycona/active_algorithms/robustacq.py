@@ -26,7 +26,6 @@ class RobustAcq(AlgorithmCAInteractive):
         self.retrain_thresh = retrain_thresh
         self.stopping_threshold = 0
         self.confidence_thresh = confidence_thresh
-        self.Br = set()
 
     def retrain_classifier(self):
         """Retrain the classifier and reclassify constraints in Br."""
@@ -40,7 +39,7 @@ class RobustAcq(AlgorithmCAInteractive):
     def _reclassify_constraints(self):
         """Move constraints back from Br to B if the classifier is confident they were misclassified."""
         constraints_to_move = set()
-        for constraint in self.Br:
+        for constraint in self.env.Br:
             # Get the feature representation for the constraint
             features = self.env.feature_representation.featurize_constraint(constraint)
             # Get classifier prediction probability
@@ -55,7 +54,7 @@ class RobustAcq(AlgorithmCAInteractive):
         self.env.instance.bias.extend(constraints_to_move)  # Add back to B
         
     def remove_constraints_Br(self, cons):
-        return [item for item in self.Br if item not in cons]
+        return [item for item in self.env.Br if item not in cons]
     
     def remove_constraints_bias(self, cons):
         return [item for item in self.env.instance.bias if item not in cons]
@@ -65,15 +64,12 @@ class RobustAcq(AlgorithmCAInteractive):
         self.stopping_threshold += 1
 
     def learn(self, instance: ProblemInstance, oracle: Oracle = MisclassifyingUserOracle(), verbose=0, metrics: Metrics = None):
-        self.env.init_state(instance, oracle, verbose, metrics)
 
+        self.env.init_state(instance, oracle, verbose, metrics)
+        
         if len(self.env.instance.bias) == 0:
             self.env.instance.construct_bias()
-            for c in self.env.instance.bias:
-                print(c)
-            
-        # Initialize Br
-        self.Br = []
+            self.env._bias_proba = {c: 0.01 for c in self.env.instance.bias}
 
         while True:
             if self.stopping_threshold > self.stop_thresh:
@@ -84,7 +80,7 @@ class RobustAcq(AlgorithmCAInteractive):
 
             q1 = self.env.run_robust_query_generation(self.env.instance.bias)
             if q1 is None:
-                q2 = self.env.run_robust_query_generation(self.Br)
+                q2 = self.env.run_robust_query_generation(self.env.Br)
                 if q2 is None:
                     continue
 
@@ -101,7 +97,7 @@ class RobustAcq(AlgorithmCAInteractive):
                     # remove from B and add to Br
                     kappa = get_kappa(self.env.instance.bias, q1)
                     self.env.remove_from_bias(kappa)
-                    self.Br.extend(kappa)
+                    self.env.Br.extend(kappa)
                 else:
                     scope = self.env.run_find_scope(q1)
                     c = self.env.run_findc(scope)

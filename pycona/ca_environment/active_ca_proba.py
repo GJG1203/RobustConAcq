@@ -27,6 +27,7 @@ class ProbaActiveCAEnv(ActiveCAEnv):
         :param training_frequency: Frequency of training the classifier, default is 1.
         """
         self._bias_proba = None
+        self.Br = []
         from ..query_generation import PQGen
         from ..query_generation.qgen_obj import obj_proba
         qgen = qgen if qgen is not None else PQGen(objective_function=obj_proba)
@@ -217,8 +218,8 @@ class ProbaActiveCAEnv(ActiveCAEnv):
 
         super().remove_from_bias(C)
 
-        for c in C:
-            self.bias_proba.pop(c)
+        #for c in C:
+        #    self.bias_proba.pop(c)
 
         # featurize constraints and add them to the dataset
         self.datasetX.extend(self.feature_representation.featurize_constraints(C))
@@ -249,6 +250,8 @@ class ProbaActiveCAEnv(ActiveCAEnv):
         """ Predict the probabilities of candidate constraints using the trained classifier """
         if self._classifier_trained:
             featuresB = {c: self.feature_representation.featurize_constraint(c) for c in self.instance.bias}
+            featuresBr = {c: self.feature_representation.featurize_constraint(c) for c in self.Br}
+            featuresB.update(featuresBr)
             self.bias_proba = {c: self.classifier.predict_proba([featuresB[c]])[0][1]+0.01 for c in self.instance.bias}
         else:
             self.bias_proba = {c: 0.01 for c in self.instance.bias}
