@@ -217,7 +217,7 @@ class ProbaActiveCAEnv(ActiveCAEnv):
         assert isinstance(C, list), "remove_from_bias accepts as input a list of constraints or a constraint"
 
         super().remove_from_bias(C)
-
+        self.Br.extend(C)
         #for c in C:
         #    self.bias_proba.pop(c)
 
@@ -250,8 +250,16 @@ class ProbaActiveCAEnv(ActiveCAEnv):
         """ Predict the probabilities of candidate constraints using the trained classifier """
         if self._classifier_trained:
             featuresB = {c: self.feature_representation.featurize_constraint(c) for c in self.instance.bias}
+            print("length of featuresB: " + str(len(featuresB)))
             featuresBr = {c: self.feature_representation.featurize_constraint(c) for c in self.Br}
+            print("length of featuresBr: " + str(len(featuresBr)))
             featuresB.update(featuresBr)
-            self.bias_proba = {c: self.classifier.predict_proba([featuresB[c]])[0][1]+0.01 for c in self.instance.bias}
+            print("updated length of featuresB: " + str(len(featuresB)))
+            print("len before: " + str(len(self.bias_proba)))
+            bias_union = set(self.instance.bias).union(set(self.Br))
+            print("length of bias union: " + str(len(bias_union)))
+            self.bias_proba = {c: self.classifier.predict_proba([featuresB[c]])[0][1]+0.01 for c in bias_union}
+            # self.bias_proba = {c: self.classifier.predict_proba([featuresB[c]])[0][1]+0.01 for c in self.instance.bias}
+            print("len after: " + str(len(self.bias_proba)))
         else:
             self.bias_proba = {c: 0.01 for c in self.instance.bias}

@@ -248,6 +248,7 @@ class ActiveCAEnv(CAEnv):
         # Add constraint(s) c to the learned network and remove them from the bias
         self.instance.cl.extend(C)
         self.instance.bias = list(set(self.instance.bias) - set(C))
+        self.Br.extend(C)
 
         self.metrics.cl += 1
         if self.verbose == 1:

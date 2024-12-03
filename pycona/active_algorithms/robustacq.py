@@ -51,7 +51,9 @@ class RobustAcq(AlgorithmCAInteractive):
         
         # Move the marked constraints from Br back to B
         self.remove_constraints_Br(constraints_to_move)
+        print("removed " + str(len(constraints_to_move)) + "constraints from Br")
         self.env.instance.bias.extend(constraints_to_move)  # Add back to B
+        print("added " + str(len(constraints_to_move)) + "constraints to bias")
         
     def remove_constraints_Br(self, cons):
         return [item for item in self.env.Br if item not in cons]
@@ -73,9 +75,11 @@ class RobustAcq(AlgorithmCAInteractive):
 
         while True:
             if self.stopping_threshold > self.stop_thresh:
+                print("increase stopthresh")
                 return self.env.instance.cl  # Convergence condition
 
             if len(self.env.instance.cl) > self.retrain_thresh:
+                print("retrain classifier")
                 self.retrain_classifier()  # Retrain classifier condition
 
             q1 = self.env.run_robust_query_generation(self.env.instance.bias)
