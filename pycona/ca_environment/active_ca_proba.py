@@ -95,8 +95,14 @@ class ProbaActiveCAEnv(ActiveCAEnv):
 
         :param bias_proba: A dictionary of probabilities for the candidate constraints.
         """
-        assert len(bias_proba) == len(self._instance.bias), "bias_proba needs to be the same size as the set of " \
+        #assert len(bias_proba) == len(self._instance.bias), "bias_proba needs to be the same size as the set of " \
+        #                                                    "candidate constraints."
+        print("bias  proba: " + str(len(bias_proba)))
+        print("bias  : " + str(len(self._instance.bias)))
+        print("Br: " + str(len(self.Br)))
+        assert len(bias_proba) == (len(self._instance.bias) + len(self.Br)), "bias_proba needs to be the same size as the set of " \
                                                             "candidate constraints."
+        
         self._bias_proba = bias_proba
 
     @property
@@ -250,14 +256,11 @@ class ProbaActiveCAEnv(ActiveCAEnv):
         """ Predict the probabilities of candidate constraints using the trained classifier """
         if self._classifier_trained:
             featuresB = {c: self.feature_representation.featurize_constraint(c) for c in self.instance.bias}
-            print("length of featuresB: " + str(len(featuresB)))
             featuresBr = {c: self.feature_representation.featurize_constraint(c) for c in self.Br}
-            print("length of featuresBr: " + str(len(featuresBr)))
+            
             featuresB.update(featuresBr)
-            print("updated length of featuresB: " + str(len(featuresB)))
-            print("len before: " + str(len(self.bias_proba)))
             bias_union = set(self.instance.bias).union(set(self.Br))
-            print("length of bias union: " + str(len(bias_union)))
+            
             self.bias_proba = {c: self.classifier.predict_proba([featuresB[c]])[0][1]+0.01 for c in bias_union}
             # self.bias_proba = {c: self.classifier.predict_proba([featuresB[c]])[0][1]+0.01 for c in self.instance.bias}
             print("len after: " + str(len(self.bias_proba)))

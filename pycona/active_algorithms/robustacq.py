@@ -50,20 +50,19 @@ class RobustAcq(AlgorithmCAInteractive):
                 constraints_to_move.add(constraint)
         
         # Move the marked constraints from Br back to B
-        self.remove_constraints_Br(constraints_to_move)
+        self.env.Br = self.remove_constraints_Br(constraints_to_move)
         print("removed " + str(len(constraints_to_move)) + "constraints from Br")
         self.env.instance.bias.extend(constraints_to_move)  # Add back to B
         print("added " + str(len(constraints_to_move)) + "constraints to bias")
         
     def remove_constraints_Br(self, cons):
-        return [item for item in self.env.Br if item not in cons]
-    
-    def remove_constraints_bias(self, cons):
-        return [item for item in self.env.instance.bias if item not in cons]
+        return list(set(self.env.Br) - cons)
         
     def increase_stopping_threshold(self):
         """Increase the stopping threshold"""
         self.stopping_threshold += 1
+
+
 
     def learn(self, instance: ProblemInstance, oracle: Oracle = MisclassifyingUserOracle(), verbose=0, metrics: Metrics = None):
 
@@ -83,7 +82,9 @@ class RobustAcq(AlgorithmCAInteractive):
                 self.retrain_classifier()  # Retrain classifier condition
 
             q1 = self.env.run_robust_query_generation(self.env.instance.bias)
+            print("q1")
             if q1 is None:
+                print("q2")
                 q2 = self.env.run_robust_query_generation(self.env.Br)
                 if q2 is None:
                     continue
@@ -91,6 +92,7 @@ class RobustAcq(AlgorithmCAInteractive):
                 if self.env.ask_membership_query(q2):
                     self.increase_stopping_threshold()
                 else:
+                    print("q2 scope")
                     scope = self.env.run_find_scope(q2)
                     c = self.env.run_findc(scope)
                     if c:
@@ -98,11 +100,12 @@ class RobustAcq(AlgorithmCAInteractive):
 
             else:
                 if self.env.ask_membership_query(q1):
+                    print("kappa")
                     # remove from B and add to Br
                     kappa = get_kappa(self.env.instance.bias, q1)
                     self.env.remove_from_bias(kappa)
-                    self.env.Br.extend(kappa)
                 else:
+                    print("q1 scope")
                     scope = self.env.run_find_scope(q1)
                     c = self.env.run_findc(scope)
                     if c:

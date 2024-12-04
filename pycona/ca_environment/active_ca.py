@@ -231,6 +231,7 @@ class ActiveCAEnv(CAEnv):
             print(f"removing the following constraints from bias: {C}")
 
         self.instance.bias = list(set(self.instance.bias) - set(C))
+        
 
     def add_to_cl(self, C):
         """
