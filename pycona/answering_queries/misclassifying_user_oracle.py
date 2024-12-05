@@ -31,7 +31,14 @@ class MisclassifyingUserOracle(Oracle):
         :param answer: The original answer (True/False) from the user.
         :return: The (possibly misclassified) answer.
         """
-        if random.random() < self.misclassification_rate:
+        
+        # generate random chance
+        rng = random.random()
+        print("random: " + str(rng))
+        
+        # if answer is 'Yes' or 'True', the user can make a mistake so the answer could be flipped
+        if answer and rng < self.misclassification_rate:
+            print("flipped answer")
             return not answer  # Flip the answer
         return answer
         
@@ -42,6 +49,7 @@ class MisclassifyingUserOracle(Oracle):
         :param Y: The values to be checked against the constraints.
         :return: A boolean indicating if the values satisfy the constraints.
         """
+        print("answer MQ")
         user_answer = self._get_user_response()
         return self._maybe_misclassify(user_answer)
 
@@ -52,6 +60,7 @@ class MisclassifyingUserOracle(Oracle):
         :param c: The recommended constraint to be checked.
         :return: A boolean indicating if the recommended constraint is part of the constraints.
         """
+        print("answer RQ")
         user_answer = self._get_user_response()
         return self._maybe_misclassify(user_answer)
 
@@ -62,5 +71,6 @@ class MisclassifyingUserOracle(Oracle):
         :param C: The generalization of constraints to be checked.
         :return: A boolean indicating if the generalization of constraints is correct.
         """
+        print("answer GQ")
         user_answer = self._get_user_response()
         return self._maybe_misclassify(user_answer)

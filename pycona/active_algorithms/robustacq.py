@@ -14,7 +14,7 @@ class RobustAcq(AlgorithmCAInteractive):
     RobustAcq is a modified version of the QuAcq algorithm with additional robustness features.
     """
 
-    def __init__(self, ca_env: ProbaActiveCAEnv = None, stop_thresh=10, retrain_thresh=20, confidence_thresh=0.8):
+    def __init__(self, ca_env: ProbaActiveCAEnv = None, stop_thresh=5, retrain_thresh=20, confidence_thresh=0.8):
         """
         Initialize the RobustAcq algorithm with optional thresholds.
         :param ca_env: An instance of CASystem, default is None.
@@ -46,14 +46,14 @@ class RobustAcq(AlgorithmCAInteractive):
             prob = self.env.classifier.predict_proba([features])[0][0]  # Assuming class 0 is 'doesn't belong in Br'
             
             # If classifier is confident it's misclassified, mark it for moving
-            if prob >= self.confidence_thresh:
+            if prob < (1 - self.confidence_thresh):
                 constraints_to_move.add(constraint)
         
         # Move the marked constraints from Br back to B
         self.env.Br = self.remove_constraints_Br(constraints_to_move)
-        print("removed " + str(len(constraints_to_move)) + "constraints from Br")
+        print("removed " + str(len(constraints_to_move)) + " constraints from Br")
         self.env.instance.bias.extend(constraints_to_move)  # Add back to B
-        print("added " + str(len(constraints_to_move)) + "constraints to bias")
+        print("added " + str(len(constraints_to_move)) + " constraints to bias")
         
     def remove_constraints_Br(self, cons):
         return list(set(self.env.Br) - cons)
@@ -61,6 +61,7 @@ class RobustAcq(AlgorithmCAInteractive):
     def increase_stopping_threshold(self):
         """Increase the stopping threshold"""
         self.stopping_threshold += 1
+        print("increase stopthresh")
 
 
 
@@ -73,20 +74,21 @@ class RobustAcq(AlgorithmCAInteractive):
             self.env._bias_proba = {c: 0.01 for c in self.env.instance.bias}
 
         while True:
+            
             if self.stopping_threshold > self.stop_thresh:
-                print("increase stopthresh")
-                return self.env.instance.cl  # Convergence condition
+                return self.env.instance # Convergence
 
             if len(self.env.instance.cl) > self.retrain_thresh:
                 print("retrain classifier")
-                self.retrain_classifier()  # Retrain classifier condition
+                self.retrain_classifier()
 
             q1 = self.env.run_robust_query_generation(self.env.instance.bias)
             print("q1")
-            if q1 is None:
+            if len(q1) == 0:
                 print("q2")
                 q2 = self.env.run_robust_query_generation(self.env.Br)
-                if q2 is None:
+                if len(q2) == 0:
+                    print("len q2 is 0")
                     continue
 
                 if self.env.ask_membership_query(q2):
@@ -96,6 +98,7 @@ class RobustAcq(AlgorithmCAInteractive):
                     scope = self.env.run_find_scope(q2)
                     c = self.env.run_findc(scope)
                     if c:
+                        print("q2 cl")
                         self.env.add_to_cl(c)
 
             else:
@@ -109,4 +112,5 @@ class RobustAcq(AlgorithmCAInteractive):
                     scope = self.env.run_find_scope(q1)
                     c = self.env.run_findc(scope)
                     if c:
+                        print("q1 cl")
                         self.env.add_to_cl(c)

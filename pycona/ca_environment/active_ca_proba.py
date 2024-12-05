@@ -97,9 +97,9 @@ class ProbaActiveCAEnv(ActiveCAEnv):
         """
         #assert len(bias_proba) == len(self._instance.bias), "bias_proba needs to be the same size as the set of " \
         #                                                    "candidate constraints."
-        print("bias  proba: " + str(len(bias_proba)))
-        print("bias  : " + str(len(self._instance.bias)))
-        print("Br: " + str(len(self.Br)))
+        # print("bias  proba: " + str(len(bias_proba)))
+        #print("bias  : " + str(len(self._instance.bias)))
+        #print("Br: " + str(len(self.Br)))
         assert len(bias_proba) == (len(self._instance.bias) + len(self.Br)), "bias_proba needs to be the same size as the set of " \
                                                             "candidate constraints."
         
@@ -263,6 +263,17 @@ class ProbaActiveCAEnv(ActiveCAEnv):
             
             self.bias_proba = {c: self.classifier.predict_proba([featuresB[c]])[0][1]+0.01 for c in bias_union}
             # self.bias_proba = {c: self.classifier.predict_proba([featuresB[c]])[0][1]+0.01 for c in self.instance.bias}
-            print("len after: " + str(len(self.bias_proba)))
         else:
             self.bias_proba = {c: 0.01 for c in self.instance.bias}
+            
+    
+    #TODO
+    
+    def ask_membership_query(self, Y=None):
+        """
+        Ask a membership query to the oracle.
+
+        :param Y: Optional. A subset of variables to be used in the query. If None, all variables are used.
+        :return: The oracle's answer to the membership query (True/False).
+        """
+        return super().ask_membership_query(Y)
