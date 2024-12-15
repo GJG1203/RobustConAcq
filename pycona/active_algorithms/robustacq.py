@@ -2,7 +2,7 @@ import time
 
 from .algorithm_core import AlgorithmCAInteractive
 from ..problem_instance import ProblemInstance
-from ..answering_queries import Oracle, UserOracle, MisclassifyingUserOracle
+from ..answering_queries import Oracle, UserOracle, MisclassifyingOracle
 from ..ca_environment.active_ca import ActiveCAEnv
 from ..ca_environment.active_ca_proba import ProbaActiveCAEnv
 from ..utils import get_kappa
@@ -65,7 +65,7 @@ class RobustAcq(AlgorithmCAInteractive):
 
 
 
-    def learn(self, instance: ProblemInstance, oracle: Oracle = MisclassifyingUserOracle(), verbose=0, metrics: Metrics = None):
+    def learn(self, instance: ProblemInstance, oracle: Oracle = UserOracle(), verbose=0, metrics: Metrics = None):
 
         self.env.init_state(instance, oracle, verbose, metrics)
         
@@ -87,9 +87,9 @@ class RobustAcq(AlgorithmCAInteractive):
             if len(q1) == 0:
                 print("q2")
                 q2 = self.env.run_robust_query_generation(self.env.Br)
-                if len(q2) == 0:
-                    print("len q2 is 0")
-                    continue
+                # if len(q2) == 0:
+                #     print("len q2 is 0")
+                #     continue
 
                 if self.env.ask_membership_query(q2):
                     self.increase_stopping_threshold()

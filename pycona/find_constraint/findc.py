@@ -36,6 +36,7 @@ class FindC(FindCBase):
         # Initialize delta
         delta = get_con_subset(self.ca.instance.bias, scope)
         delta = [c for c in delta if check_value(c) is False]
+        print(delta)
 
         if len(delta) == 1:
             c = delta[0]
