@@ -168,6 +168,48 @@ class ActiveCAEnv(CAEnv):
             print(".", end="")
 
         return self.last_answer
+    
+    def noisy_ask_membership_query(self, Y=None):
+        """
+        Ask a membership query to the oracle.
+
+        :param Y: Optional. A subset of variables to be used in the query. If None, all variables are used.
+        :return: The oracle's answer to the membership query (True/False).
+        """
+        X = self.instance.X
+        if Y is None:
+            Y = X
+        e = self.instance.variables.value()
+        value = np.zeros(e.shape, dtype=int)
+
+        # Create a truth table numpy array
+        sel = np.array([item in set(Y) for item in list(self.instance.variables.flatten())]).reshape(self.instance.variables.shape)
+
+        # Variables present in the partial query
+        value[sel] = e[sel]
+
+        # Post the query to the user/oracle
+        if self.verbose >= 3:
+            print(f"Query{self.metrics.membership_queries_count}: is this a solution?")
+            self.instance.visualize(value)
+        if self.verbose >= 4:
+            print("violated from B: ", get_kappa(self.instance.bias, Y))
+
+        # Oracle answers
+        self.last_answer = self.oracle.noisy_answer_membership_query(Y)
+        if self.verbose >= 3:
+            print("Answer: ", ("Yes" if self.last_answer else "No"))
+
+        # For the evaluation metrics
+        if self.metrics:
+            self.metrics.increase_membership_queries_count()
+            self.metrics.increase_queries_size(len(Y))
+            self.metrics.asked_query()
+        if self.verbose == 1:
+            print(".", end="")
+
+        return self.last_answer
+
 
     def ask_recommendation_query(self, c):
         """

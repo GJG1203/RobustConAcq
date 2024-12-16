@@ -53,6 +53,20 @@ class MisclassifyingOracle(Oracle):
             print("flipped answer")
             return not answer  # Flip the answer
         return answer
+    
+    def noisy_answer_membership_query(self, Y=None):
+        """
+        Answer a membership query, with a chance of misclassification.
+
+        Determines whether the given assignment on Y is a solution or not using the constraints of the problem.
+
+        :param Y: The input values to be checked for membership.
+        :return: A boolean indicating a positive or negative answer.
+        """
+
+        print('noisy MQ')
+        user_answer = self.answer_membership_query(Y)
+        return self._maybe_misclassify(user_answer)
         
     def answer_membership_query(self, Y=None):
         """
@@ -64,26 +78,22 @@ class MisclassifyingOracle(Oracle):
         :return: A boolean indicating a positive or negative answer.
         """
 
+        print('MQ')
         # Need the oracle to answer based only on the constraints with a scope that is a subset of Y
         suboracle = get_con_subset(self.constraints, Y)
 
         # Check if at least one constraint is violated or not
-        user_answer = all([check_value(c) for c in suboracle])
-        return self._maybe_misclassify(user_answer)
+        return all([check_value(c) for c in suboracle])
 
     def answer_recommendation_query(self, c=None):
         """
-        Answer a recommendation query, with a probability of misclassification.
+        Answer a recommendation queryby checking if the recommended constraint is part of the constraints, 
+        with a probability of misclassification.
 
         :param c: The recommended constraint to be checked.
         :return: A boolean indicating if the recommended constraint is part of the constraints.
         """
-        """
-        Answer a recommendation query by checking if the recommended constraint is part of the constraints.
-
-        :param c: The recommended constraint.
-        :return: A boolean indicating if the recommended constraint is in the set of constraints.
-        """
+        print('RQ')
         # Check if the recommended constraint is in the set of constraints
         user_answer = c in self.constraints
         return self._maybe_misclassify(user_answer)

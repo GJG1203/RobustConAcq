@@ -91,7 +91,7 @@ class RobustAcq(AlgorithmCAInteractive):
                 #     print("len q2 is 0")
                 #     continue
 
-                if self.env.ask_membership_query(q2):
+                if self.env.noisy_ask_membership_query(q2):
                     self.increase_stopping_threshold()
                 else:
                     print("q2 scope")
@@ -102,7 +102,7 @@ class RobustAcq(AlgorithmCAInteractive):
                         self.env.add_to_cl(c)
 
             else:
-                if self.env.ask_membership_query(q1):
+                if self.env.noisy_ask_membership_query(q1):
                     print("kappa")
                     # remove from B and add to Br
                     kappa = get_kappa(self.env.instance.bias, q1)
