@@ -91,6 +91,7 @@ class RobustAcq(AlgorithmCAInteractive):
                 #     print("len q2 is 0")
                 #     continue
 
+                # user can only make mistakes here, not in findC or findScope
                 if self.env.noisy_ask_membership_query(q2):
                     self.increase_stopping_threshold()
                 else:
@@ -102,6 +103,7 @@ class RobustAcq(AlgorithmCAInteractive):
                         self.env.add_to_cl(c)
 
             else:
+                # user can only make mistakes here, not in findC or findScope
                 if self.env.noisy_ask_membership_query(q1):
                     print("kappa")
                     # remove from B and add to Br
