@@ -64,9 +64,13 @@ class MisclassifyingOracle(Oracle):
         :return: A boolean indicating a positive or negative answer.
         """
 
+        # user can only make mistakes when answering yes
         print('noisy MQ')
         user_answer = self.answer_membership_query(Y)
-        return self._maybe_misclassify(user_answer)
+        if user_answer:
+            return self._maybe_misclassify(user_answer)
+        else:
+            return user_answer
         
     def answer_membership_query(self, Y=None):
         """
