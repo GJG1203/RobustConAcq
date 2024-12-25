@@ -27,9 +27,16 @@ class FindScope2(FindScopeBase):
         :return: The scope of the partial example.
         :raises Exception: If the partial example is not a negative example.
         """
+        
+        print("findscope2")
         assert self.ca is not None
+        
+        #TODO hier worden constraints in Br gestoken die er al in zitten, dus check toevoegen die 
+        # eerst kijkt in bias en indien niets gevonden in bias, checkt in bias union en dan de nodige 
+        # constraint terugzet in bias en dan opnieuw kijken in bias ??
 
-        kappaB = kappa if kappa is not None else get_kappa(self.ca.instance.bias, Y)
+        bias_union = set(self.ca.instance.bias).union(set(self.ca.Br))
+        kappaB = kappa if kappa is not None else get_kappa(bias_union, Y)
         self._kappaB = kappaB
         if len(self._kappaB) == 0:
             raise Exception(f"The partial example e_Y, on the subset of variables Y given in FindScope, "
@@ -59,7 +66,12 @@ class FindScope2(FindScopeBase):
 
             self.ca.metrics.increase_findscope_queries()
             if self.ca.ask_membership_query(R):
+                print("remove and add kappa inside findscope")
+                print(kappaBR)
                 self.ca.remove_from_bias(kappaBR)
+                # add to Br is in remove from bias method
+                # for c in kappaBR:
+                #     self.ca.add_to_Br(c)
                 self._kappaB = list(set(self._kappaB) - set(kappaBR))
                 kappaBRY = get_con_subset(self._kappaB, list(RY))
 

@@ -74,6 +74,10 @@ class RobustAcq(AlgorithmCAInteractive):
             self.env._bias_proba = {c: 0.01 for c in self.env.instance.bias}
 
         while True:
+            print("CL; ")
+            print(self.env.instance.cl)
+            print("Br: ")
+            print(self.env.Br)
             
             if self.stopping_threshold > self.stop_thresh:
                 return self.env.instance # Convergence
@@ -106,8 +110,8 @@ class RobustAcq(AlgorithmCAInteractive):
                 # user can only make mistakes here, not in findC or findScope
                 if self.env.noisy_ask_membership_query(q1):
                     print("kappa")
-                    # remove from B and add to Br
                     kappa = get_kappa(self.env.instance.bias, q1)
+                    # remove from B and add to Br
                     self.env.remove_from_bias(kappa)
                 else:
                     print("q1 scope")

@@ -49,7 +49,7 @@ class MisclassifyingOracle(Oracle):
         print("random: " + str(rng))
         
         # if answer is 'Yes' or 'True', the user can make a mistake so the answer could be flipped
-        if answer and rng < self.misclassification_rate:
+        if not answer and rng < self.misclassification_rate:
             print("flipped answer")
             return not answer  # Flip the answer
         return answer
@@ -67,7 +67,7 @@ class MisclassifyingOracle(Oracle):
         # user can only make mistakes when answering yes
         print('noisy MQ')
         user_answer = self.answer_membership_query(Y)
-        if user_answer:
+        if not user_answer:
             return self._maybe_misclassify(user_answer)
         else:
             return user_answer
@@ -81,8 +81,6 @@ class MisclassifyingOracle(Oracle):
         :param Y: The input values to be checked for membership.
         :return: A boolean indicating a positive or negative answer.
         """
-
-        print('MQ')
         # Need the oracle to answer based only on the constraints with a scope that is a subset of Y
         suboracle = get_con_subset(self.constraints, Y)
 
@@ -97,7 +95,6 @@ class MisclassifyingOracle(Oracle):
         :param c: The recommended constraint to be checked.
         :return: A boolean indicating if the recommended constraint is part of the constraints.
         """
-        print('RQ')
         # Check if the recommended constraint is in the set of constraints
         user_answer = c in self.constraints
         return self._maybe_misclassify(user_answer)
@@ -109,6 +106,5 @@ class MisclassifyingOracle(Oracle):
         :param C: The generalization of constraints to be checked.
         :return: A boolean indicating if the generalization of constraints is correct.
         """
-        print("answer GQ")
         user_answer = all(constraint in set(self.constraints) for constraint in C)
         return self._maybe_misclassify(user_answer)

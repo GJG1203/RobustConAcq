@@ -271,6 +271,8 @@ class ActiveCAEnv(CAEnv):
 
         if self.verbose >= 3:
             print(f"removing the following constraints from bias: {C}")
+            
+        print(f"removing the following constraints from bias: {C}")
 
         self.instance.bias = list(set(self.instance.bias) - set(C))
         
@@ -287,11 +289,17 @@ class ActiveCAEnv(CAEnv):
 
         if self.verbose >= 3:
             print(f"adding the following constraints to C_L: {C}")
+            
+        print(f"adding the following constraints to C_L: {C}")
+        print(f"removing the following constraints from bias: {C}")
 
         # Add constraint(s) c to the learned network and remove them from the bias
         self.instance.cl.extend(C)
         self.instance.bias = list(set(self.instance.bias) - set(C))
-        self.Br.extend(C)
+        # add to br in method remove!
+        # for c in C:
+        #     print(f"adding the following constraint to Br: {c}")
+        #     self.add_to_Br(c)
 
         self.metrics.cl += 1
         if self.verbose == 1:

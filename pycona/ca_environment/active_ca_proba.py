@@ -45,7 +45,11 @@ class ProbaActiveCAEnv(ActiveCAEnv):
         self._datasetY = []  # Labels
 
         self._training_frequency = training_frequency
-
+        
+    def add_to_Br(self, constraint):
+        print("method add to Br in proba")
+        self.Br.append(constraint)
+            
     def init_state(self, instance, oracle, verbose, metrics=None):
         """ Initialize the state of the CA system. """
         super().init_state(instance, oracle, verbose, metrics)
@@ -223,6 +227,7 @@ class ProbaActiveCAEnv(ActiveCAEnv):
         assert isinstance(C, list), "remove_from_bias accepts as input a list of constraints or a constraint"
 
         super().remove_from_bias(C)
+        print("extend Br in proba env")
         self.Br.extend(C)
         #for c in C:
         #    self.bias_proba.pop(c)
