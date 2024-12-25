@@ -27,7 +27,7 @@ class ProbaActiveCAEnv(ActiveCAEnv):
         :param training_frequency: Frequency of training the classifier, default is 1.
         """
         self._bias_proba = None
-        self.Br = []
+        self.Br = set()
         from ..query_generation import PQGen
         from ..query_generation.qgen_obj import obj_proba
         qgen = qgen if qgen is not None else PQGen(objective_function=obj_proba)
@@ -45,10 +45,6 @@ class ProbaActiveCAEnv(ActiveCAEnv):
         self._datasetY = []  # Labels
 
         self._training_frequency = training_frequency
-        
-    def add_to_Br(self, constraint):
-        print("method add to Br in proba")
-        self.Br.append(constraint)
             
     def init_state(self, instance, oracle, verbose, metrics=None):
         """ Initialize the state of the CA system. """
@@ -104,8 +100,11 @@ class ProbaActiveCAEnv(ActiveCAEnv):
         # print("bias  proba: " + str(len(bias_proba)))
         #print("bias  : " + str(len(self._instance.bias)))
         #print("Br: " + str(len(self.Br)))
-        assert len(bias_proba) == (len(self._instance.bias) + len(self.Br)), "bias_proba needs to be the same size as the set of " \
-                                                            "candidate constraints."
+        message = "bias_proba needs to be the same size as the set of candidate constraints. "
+        message += "bias has " + str(len(self._instance.bias)) + " constraints. "
+        message += "Br has " + str(len(self.Br)) + " constraints. "
+        message += "bias_proba has " + str(len(bias_proba)) + " constraints."
+        assert len(bias_proba) == (len(self._instance.bias) + len(self.Br)), message
         
         self._bias_proba = bias_proba
 
@@ -227,8 +226,7 @@ class ProbaActiveCAEnv(ActiveCAEnv):
         assert isinstance(C, list), "remove_from_bias accepts as input a list of constraints or a constraint"
 
         super().remove_from_bias(C)
-        print("extend Br in proba env")
-        self.Br.extend(C)
+        self.Br.update(C)
         #for c in C:
         #    self.bias_proba.pop(c)
 
@@ -264,15 +262,12 @@ class ProbaActiveCAEnv(ActiveCAEnv):
             featuresBr = {c: self.feature_representation.featurize_constraint(c) for c in self.Br}
             
             featuresB.update(featuresBr)
-            bias_union = set(self.instance.bias).union(set(self.Br))
+            bias_union = set(self.instance.bias).union(self.Br)
             
             self.bias_proba = {c: self.classifier.predict_proba([featuresB[c]])[0][1]+0.01 for c in bias_union}
             # self.bias_proba = {c: self.classifier.predict_proba([featuresB[c]])[0][1]+0.01 for c in self.instance.bias}
         else:
             self.bias_proba = {c: 0.01 for c in self.instance.bias}
-            
-    
-    #TODO
     
     def ask_membership_query(self, Y=None):
         """

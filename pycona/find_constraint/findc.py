@@ -37,8 +37,7 @@ class FindC(FindCBase):
         bias_union = set(self.ca.instance.bias).union(set(self.ca.Br))
         delta = get_con_subset(bias_union, scope)
         delta = [c for c in delta if check_value(c) is False]
-        print(delta)
-
+        
         if len(delta) == 1:
             c = delta[0]
             return c
@@ -73,7 +72,6 @@ class FindC(FindCBase):
                 # delta <- delta \setminus K_{delta}(e)
                 for c in delta:
                     if not check_value(c):
-                        print("remove from inside findc")
                         self.ca.remove_from_bias(c)
                         #error for extend(), add already in remove method!!
                         # print("add constraint to Br from inside findC")
@@ -84,7 +82,6 @@ class FindC(FindCBase):
                 # delta <- K_{delta}(e)
                 for c in delta:
                     if check_value(c) is not False:
-                        print("remove from inside findc")
                         self.ca.remove_from_bias(c)
                         # add already in remove!!
                         # self.ca.add_to_Br(c)

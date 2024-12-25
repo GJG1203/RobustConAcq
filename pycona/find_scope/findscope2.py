@@ -30,10 +30,6 @@ class FindScope2(FindScopeBase):
         
         print("findscope2")
         assert self.ca is not None
-        
-        #TODO hier worden constraints in Br gestoken die er al in zitten, dus check toevoegen die 
-        # eerst kijkt in bias en indien niets gevonden in bias, checkt in bias union en dan de nodige 
-        # constraint terugzet in bias en dan opnieuw kijken in bias ??
 
         bias_union = set(self.ca.instance.bias).union(set(self.ca.Br))
         kappaB = kappa if kappa is not None else get_kappa(bias_union, Y)
@@ -66,8 +62,6 @@ class FindScope2(FindScopeBase):
 
             self.ca.metrics.increase_findscope_queries()
             if self.ca.ask_membership_query(R):
-                print("remove and add kappa inside findscope")
-                print(kappaBR)
                 self.ca.remove_from_bias(kappaBR)
                 # add to Br is in remove from bias method
                 # for c in kappaBR:

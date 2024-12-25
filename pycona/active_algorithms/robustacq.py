@@ -56,14 +56,13 @@ class RobustAcq(AlgorithmCAInteractive):
         print("added " + str(len(constraints_to_move)) + " constraints to bias")
         
     def remove_constraints_Br(self, cons):
-        return list(set(self.env.Br) - cons)
+        return (self.env.Br - cons)
         
     def increase_stopping_threshold(self):
         """Increase the stopping threshold"""
         self.stopping_threshold += 1
         print("increase stopthresh")
-
-
+        
 
     def learn(self, instance: ProblemInstance, oracle: Oracle = UserOracle(), verbose=0, metrics: Metrics = None):
 
@@ -74,10 +73,6 @@ class RobustAcq(AlgorithmCAInteractive):
             self.env._bias_proba = {c: 0.01 for c in self.env.instance.bias}
 
         while True:
-            print("CL; ")
-            print(self.env.instance.cl)
-            print("Br: ")
-            print(self.env.Br)
             
             if self.stopping_threshold > self.stop_thresh:
                 return self.env.instance # Convergence
