@@ -46,7 +46,7 @@ class MisclassifyingOracle(Oracle):
         
         # generate random chance
         rng = random.random()
-        print("random: " + str(rng))
+        #print("random: " + str(rng))
         
         # if answer is 'Yes' or 'True', the user can make a mistake so the answer could be flipped
         if not answer and rng < self.misclassification_rate:
@@ -65,7 +65,7 @@ class MisclassifyingOracle(Oracle):
         """
 
         # user can only make mistakes when answering yes
-        print('noisy MQ')
+        #print('noisy MQ')
         user_answer = self.answer_membership_query(Y)
         if not user_answer:
             return self._maybe_misclassify(user_answer)

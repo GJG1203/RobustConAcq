@@ -27,8 +27,6 @@ class FindScope2(FindScopeBase):
         :return: The scope of the partial example.
         :raises Exception: If the partial example is not a negative example.
         """
-        
-        print("findscope2")
         assert self.ca is not None
 
         bias_union = set(self.ca.instance.bias).union(set(self.ca.Br))

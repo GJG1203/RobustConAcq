@@ -263,10 +263,11 @@ class ProbaActiveCAEnv(ActiveCAEnv):
             
             featuresB.update(featuresBr)
             bias_union = set(self.instance.bias).union(self.Br)
-            
+            print("len bias_union: " + str(len(bias_union)))
             self.bias_proba = {c: self.classifier.predict_proba([featuresB[c]])[0][1]+0.01 for c in bias_union}
             # self.bias_proba = {c: self.classifier.predict_proba([featuresB[c]])[0][1]+0.01 for c in self.instance.bias}
         else:
+            print("else check")
             self.bias_proba = {c: 0.01 for c in self.instance.bias}
     
     def ask_membership_query(self, Y=None):

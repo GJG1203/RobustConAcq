@@ -38,9 +38,9 @@ def obj_proba(B, ca_system: ActiveCAEnv, **kwargs):
         raise Exception('Probability based objective can only be used with CASystemPredict')
 
     #print(ca_system.bias_proba)
-    print(len(ca_system.instance.bias))
-    print(len(ca_system.Br))
-    print(len(ca_system.bias_proba))
+    #print(len(ca_system.instance.bias))
+    #print(len(ca_system.Br))
+    #print(len(ca_system.bias_proba))
     proba = {c: ca_system.bias_proba[c] for c in B}
     Y = get_variables_from_constraints(B)
 

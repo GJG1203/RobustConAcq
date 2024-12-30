@@ -44,7 +44,8 @@ class RobustAcq(AlgorithmCAInteractive):
             features = self.env.feature_representation.featurize_constraint(constraint)
             # Get classifier prediction probability
             prob = self.env.classifier.predict_proba([features])[0][0]  # Assuming class 0 is 'doesn't belong in Br'
-            
+            print(constraint)
+            print(prob)
             # If classifier is confident it's misclassified, mark it for moving
             if prob < (1 - self.confidence_thresh):
                 constraints_to_move.add(constraint)
@@ -61,7 +62,7 @@ class RobustAcq(AlgorithmCAInteractive):
     def increase_stopping_threshold(self):
         """Increase the stopping threshold"""
         self.stopping_threshold += 1
-        print("increase stopthresh")
+        #print("increase stopthresh")
         
 
     def learn(self, instance: ProblemInstance, oracle: Oracle = UserOracle(), verbose=0, metrics: Metrics = None):
@@ -78,13 +79,11 @@ class RobustAcq(AlgorithmCAInteractive):
                 return self.env.instance # Convergence
 
             if len(self.env.instance.cl) > self.retrain_thresh:
-                print("retrain classifier")
+                #print("retrain classifier")
                 self.retrain_classifier()
 
             q1 = self.env.run_robust_query_generation(self.env.instance.bias)
-            print("q1")
             if len(q1) == 0:
-                print("q2")
                 q2 = self.env.run_robust_query_generation(self.env.Br)
                 # if len(q2) == 0:
                 #     print("len q2 is 0")
@@ -94,24 +93,19 @@ class RobustAcq(AlgorithmCAInteractive):
                 if self.env.noisy_ask_membership_query(q2):
                     self.increase_stopping_threshold()
                 else:
-                    print("q2 scope")
                     scope = self.env.run_find_scope(q2)
                     c = self.env.run_findc(scope)
                     if c:
-                        print("q2 cl")
                         self.env.add_to_cl(c)
 
             else:
                 # user can only make mistakes here, not in findC or findScope
                 if self.env.noisy_ask_membership_query(q1):
-                    print("kappa")
                     kappa = get_kappa(self.env.instance.bias, q1)
                     # remove from B and add to Br
                     self.env.remove_from_bias(kappa)
                 else:
-                    print("q1 scope")
                     scope = self.env.run_find_scope(q1)
                     c = self.env.run_findc(scope)
                     if c:
-                        print("q1 cl")
                         self.env.add_to_cl(c)
