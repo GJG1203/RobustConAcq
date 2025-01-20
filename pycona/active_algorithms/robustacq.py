@@ -15,7 +15,7 @@ class RobustAcq(AlgorithmCAInteractive):
     RobustAcq is a modified version of the QuAcq algorithm with additional robustness features.
     """
 
-    def __init__(self, ca_env: ProbaActiveCAEnv = None, stop_thresh=5, retrain_thresh=20, confidence_thresh=0.8):
+    def __init__(self, ca_env: ProbaActiveCAEnv = None, stop_thresh=10, retrain_thresh=3, confidence_thresh=0.5):
         """
         Initialize the RobustAcq algorithm with optional thresholds.
         :param ca_env: An instance of CASystem, default is None.
