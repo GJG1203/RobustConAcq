@@ -1,5 +1,6 @@
 import time
 
+from ..find_scope.findscope import FindScope
 from .algorithm_core import AlgorithmCAInteractive
 from ..problem_instance import ProblemInstance
 from ..answering_queries import Oracle, UserOracle, MisclassifyingOracle
@@ -21,7 +22,7 @@ class RobustAcq(AlgorithmCAInteractive):
         :param threshold1: Stopping threshold for convergence.
         :param threshold2: Size threshold for retraining classifier.
         """
-        super().__init__(ca_env if ca_env is not None else ProbaActiveCAEnv())
+        super().__init__(ca_env if ca_env is not None else ProbaActiveCAEnv(find_scope=FindScope()))
         self.stop_thresh = stop_thresh
         self.retrain_thresh = retrain_thresh
         self.stopping_threshold = 0
