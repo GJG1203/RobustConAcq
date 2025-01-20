@@ -18,6 +18,7 @@ class MisclassifyingOracle(Oracle):
         super().__init__()
         self.misclassification_rate = misclassification_rate
         self.constraints = constraints
+        self.flipped = 0
 
     @property
     def constraints(self):
@@ -53,6 +54,7 @@ class MisclassifyingOracle(Oracle):
         # if answer is 'Yes' or 'True', the user can make a mistake so the answer could be flipped
         if not answer and rng < self.misclassification_rate**len(suboracle):
             print("flipped answer")
+            self.flipped += 1
             return not answer  # Flip the answer
         return answer
     
