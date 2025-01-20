@@ -44,8 +44,12 @@ class RobustAcq(AlgorithmCAInteractive):
             features = self.env.feature_representation.featurize_constraint(constraint)
             # Get classifier prediction probability
             prob = self.env.classifier.predict_proba([features])[0][0]  # Assuming class 0 is 'doesn't belong in Br'
-            print(constraint)
-            print(prob)
+            
+            # Print debug info only for constraints in oracle
+            if constraint in set(self.env.oracle.constraints):
+                print(constraint)
+                print(prob)
+                
             # If classifier is confident it's misclassified, mark it for moving
             if prob < (1 - self.confidence_thresh):
                 constraints_to_move.add(constraint)
@@ -74,7 +78,17 @@ class RobustAcq(AlgorithmCAInteractive):
             self.env._bias_proba = {c: 0.01 for c in self.env.instance.bias}
 
         while True:
-            
+            if self.env.verbose > 2:
+                print("Size of CL: ", len(self.env.instance.cl))
+                print("Size of B: ", len(self.env.instance.bias))
+                print("Size of Br: ", len(self.env.Br))
+                print("Size of dataset: ", len(self.env.datasetX))
+                print("Positive instances: ", sum(self.env.datasetY))
+                print("Negative instances: ", len(self.env.datasetY) - sum(self.env.datasetY))
+                print("flipped: ", self.env.oracle.flipped)
+                
+                print("Number of Queries: ", self.env.metrics.membership_queries_count)
+        
             if self.stopping_threshold > self.stop_thresh:
                 return self.env.instance # Convergence
 
