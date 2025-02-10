@@ -18,6 +18,7 @@ class MisclassifyingOracle(Oracle):
         super().__init__()
         self.misclassification_rate = misclassification_rate
         self.constraints = constraints
+        self.flipped = 0
 
     @property
     def constraints(self):
@@ -36,7 +37,7 @@ class MisclassifyingOracle(Oracle):
         self._constraints = constraints
 
         
-    def _maybe_misclassify(self, answer):
+    def _maybe_misclassify(self, answer, Y=[]):
         """
         With a certain probability, misclassifies the answer.
 
@@ -48,9 +49,12 @@ class MisclassifyingOracle(Oracle):
         rng = random.random()
         #print("random: " + str(rng))
         
+        suboracle = get_con_subset(self.constraints, Y)
+
         # if answer is 'Yes' or 'True', the user can make a mistake so the answer could be flipped
-        if not answer and rng < self.misclassification_rate:
+        if not answer and rng < self.misclassification_rate**len(suboracle):
             print("flipped answer")
+            self.flipped += 1
             return not answer  # Flip the answer
         return answer
     
@@ -68,7 +72,7 @@ class MisclassifyingOracle(Oracle):
         #print('noisy MQ')
         user_answer = self.answer_membership_query(Y)
         if not user_answer:
-            return self._maybe_misclassify(user_answer)
+            return self._maybe_misclassify(user_answer, Y)
         else:
             return user_answer
         

@@ -245,6 +245,7 @@ class ProbaActiveCAEnv(ActiveCAEnv):
         assert isinstance(C, list), "add_to_cl accepts as input a list of constraints or a constraint"
 
         super().add_to_cl(C)
+        super().remove_from_bias(C)
 
         # featurize constraints and add them to the dataset
         self.datasetX.extend(self.feature_representation.featurize_constraints(C))
