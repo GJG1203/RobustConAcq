@@ -150,7 +150,8 @@ class PQGen(QGenBase):
 
         :return: A set of variables that form the query.
         """
-
+        
+        print("robust pqgen")
         # Start time (for the cutoff t)
         t0 = time.time()
 

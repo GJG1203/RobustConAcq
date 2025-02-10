@@ -27,7 +27,7 @@ class ProbaActiveCAEnv(ActiveCAEnv):
         :param training_frequency: Frequency of training the classifier, default is 1.
         """
         self._bias_proba = None
-        self.Br = set()
+        self.Br = []
         from ..query_generation import PQGen
         from ..query_generation.qgen_obj import obj_proba
         qgen = qgen if qgen is not None else PQGen(objective_function=obj_proba)
@@ -226,9 +226,9 @@ class ProbaActiveCAEnv(ActiveCAEnv):
         assert isinstance(C, list), "remove_from_bias accepts as input a list of constraints or a constraint"
 
         super().remove_from_bias(C)
-        self.Br.update(C)
-        #for c in C:
-        #    self.bias_proba.pop(c)
+        self.Br.extend(C)
+        for c in C:
+            self.bias_proba.pop(c)
 
         # featurize constraints and add them to the dataset
         self.datasetX.extend(self.feature_representation.featurize_constraints(C))
@@ -262,7 +262,7 @@ class ProbaActiveCAEnv(ActiveCAEnv):
             featuresBr = {c: self.feature_representation.featurize_constraint(c) for c in self.Br}
             
             featuresB.update(featuresBr)
-            bias_union = set(self.instance.bias).union(self.Br)
+            bias_union = set(self.instance.bias).union(set(self.Br))
             print("len bias_union: " + str(len(bias_union)))
             self.bias_proba = {c: self.classifier.predict_proba([featuresB[c]])[0][1]+0.01 for c in bias_union}
             # self.bias_proba = {c: self.classifier.predict_proba([featuresB[c]])[0][1]+0.01 for c in self.instance.bias}
